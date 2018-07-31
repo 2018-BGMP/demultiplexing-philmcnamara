@@ -3,6 +3,33 @@ Index1 - R1
 Read2 - R4
 Index2 - R3
 
+Phred-33
+
+Create a dictionary:
+Keys are the index names
+Values are the index sequences
+
+Open read1, index1, read2, and index2 for reading
+Read in the first 4 lines from each file and store them as strings, stripping new line characters
+Example: read1_header, read1_sequence, read1_plus, read1_quality
+
+Create two string variables, index1 and index2, from the sequence lines of the index files
+
+#Writing to the proper output file based on index
+for read 1/read2
+	Check if index1/2 is in the dictionary's values
+	If it is:
+		Open a file for writing named read1/2_(key)
+		append the index name and index (key/value) to the end of the read_1/2 header string
+		Write all 4 read1/2 strings to the output file
+	otherwise:
+		Write the read1/2 lines to read1/2_undefined
 
 
+#Report number of properly matched indexes
+if index1 and index2 are equal:
+	Increment a properly matched counter
+
+#Report level of index hopping observed 
+((total reads - properly matched) / total reads)
 
