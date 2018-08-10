@@ -40,17 +40,26 @@ with gzip.open(file, "rt") as f:
         if(LC%4 == 0):
             for x in range(read_length):
                 sum_qscores[x] += convert_phred(line[x])
+        if(LC % 100000 == 0):
+            print("Working on line: " + str(LC))
         LC += 1
 
 #Populate the array of mean qscores
 for position in range(read_length):
     mean_qscore[position] = (sum_qscores[position] / lines)
 
+#Rename file name, slicing is not ideal
+file = file[49:55]
+
+#Print the final array
+print(file)
+print(mean_qscore)
+
 #Save and print figures
 fig=plt.figure(figsize=(18, 16))
 plt.rcParams.update({'font.size': 22})
 plt.xlabel("Base Position")
 plt.ylabel("Phred Quality Score")
-plt.title("Mean Phred Quality Scores for " + str(file))
+plt.title("Mean Phred Quality Scores for " + file)
 plt.plot(range(read_length), mean_qscore)
-plt.savefig(str(file) + "_Mean.png")
+plt.savefig(file + "_Mean.png")

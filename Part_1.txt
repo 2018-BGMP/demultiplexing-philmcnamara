@@ -1,0 +1,22 @@
+1.
+
+Read1 - R2
+Index1 - R1
+Read2 - R4
+Index2 - R3
+
+2.
+
+a. See graphs
+
+b. Index score reads should have a quality score of 30, and sample reads should have a cutoff of 25. It is much more important for every single base to be accurate in the index for accurate demultiplexing.
+
+c. 
+
+zcat /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R2_001.fastq.gz | sed -n 2~4p | grep -c "N" > R2_grep.txt
+
+zcat /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R3_001.fastq.gz | sed -n 2~4p | grep -c "N" > R3_grep.txt
+
+Run 2 had 3976613 undefined indices
+
+Run 3 had 3328051 undefined indices

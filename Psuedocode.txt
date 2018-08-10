@@ -1,35 +1,66 @@
-Read1 - R2
-Index1 - R1
-Read2 - R4
-Index2 - R3
+Assume Phred-33 encoding
+The first read will be referred to as "read1" and its index file will be referred to as "index1",
+similar for read2 and index2
 
-Phred-33
+Initialize a dictionary to associate index sequences and their names
+Keys are the index sequences (GTAGCGTA, CGATCGAT, etc.)
+Values are the index names (B1, A5, etc.)
 
-Create a dictionary:
-Keys are the index names
-Values are the index sequences
+Create an integer default dictionary called properly_matched that will track the number of reads WITHOUT index hopping (index1 matches index2)
+Keys are index names (B1, A5, etc.)
+Values initialize at zero
+
+Create a counter variable called quality_reads that will track the number of reads that pass a quality score cutoff
+
+Open two files for writing, read1_undefined and read2_undefined
+
+def read_lines(file)
+'''Takes a FASTQ input file and reads four lines, stripping newline characters and saving them to strings prefixed by their file name: file_header, file_sequence, file_plus, file_quality'''
+return 4 strings
+
+def covert_phred(ASCII character)
+'''Converts an ASCII phred score to a numeric quality score value'''
+return an integer
+
+def mean_read_quality(quality score line string)
+'''Coverts a string of quality score ASCII characters into a list, then calls convert_phred to create a second list of quality score integers. Calculates the mean value of the list and returns it.'''
+return an integer
 
 Open read1, index1, read2, and index2 for reading
-Read in the first 4 lines from each file and store them as strings, stripping new line characters
-Example: read1_header, read1_sequence, read1_plus, read1_quality
+while the files have lines to be read
+	Create two boolean flags, read1_qc and read2_qc, set them to True
 
-Create two string variables, index1 and index2, from the sequence lines of the index files
+	Call read_lines function on each of the four files, creating 16 strings.
 
-#Writing to the proper output file based on index
-for read 1/read2
-	Check if index1/2 is in the dictionary's values
-	If it is:
-		Open a file for writing named read1/2_(key)
-		append the index name and index (key/value) to the end of the read_1/2 header string
-		Write all 4 read1/2 strings to the output file
-	otherwise:
-		Write the read1/2 lines to read1/2_undefined
+	Now we assess the quality of the reads and indices, writing the read to the undefined file and setting the boolean to false if the read or index fails the quality check.
+
+	Pass the quality score strings into our mean_read_quality function
+	If mean_read_quality of index1 < 30, write all four read1 strings to read1_undefined, read1_qc = False
+	else if mean_read_quality of read1 < 25, write all four read1 strings to read1_undefined, read1_qc = False
+
+	Repeat for read2, writing to the read2_undefined file and updating the read2 boolean if necessary
+
+	If read1_qc and read2_qc are both still true, increment quality_reads by two and proceed with demultiplexing using our dictionary
+
+	Check if the sequence line of index1 is in the dictionary's keys (quick because our dictionary is small and will stay small)
+		If it is:
+			Open a file for writing named read1_value, (value is the assigned name for our index)
+			Write all 4 lines for read1 to the file
+	Repeat above for index2 and read2
+	
+	If index1 and index2 are equal, increment the index's value in the properly_matched dictionary, (no index hopping has occurred)
+
+	Now we jump back to the top of the while loop and grab the next 4 lines from each of the 4 files, which correspond to a new forward and reverse read with their indices.
+
+At the completion of the processing, we can quantify index hopping
+
+The properly_matched dictionary will store the number of forward and reverse reads that had the same index for each of the indices (no index hopping)
+
+sum all the "matching events" by adding up the values of the properly_matched dictionary
+Divide this number by the quality_reads variable, and we can get the fraction of reads that passed our quality score cutoff but didn't have matching indices (so index hopping occurred)
+
+Unit tests: 
+check that the number of quality reads + the number of undefined reads is equal to the total number of reads in the initial files
 
 
-#Report number of properly matched indexes
-if index1 and index2 are equal:
-	Increment a properly matched counter
-
-#Report level of index hopping observed 
-((total reads - properly matched) / total reads)
 
