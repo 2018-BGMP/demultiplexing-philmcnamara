@@ -1,7 +1,7 @@
 1.
 
-Read1 - R2
-Index1 - R1
+Read1 - R1
+Index1 - R2
 Read2 - R4
 Index2 - R3
 
