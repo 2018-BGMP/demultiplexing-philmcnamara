@@ -84,21 +84,23 @@ with open("test_files/R1.fq", "r") as R1file, \
     #     open("output/" + index + "_read2.fq", "w")
     # open("output/unknown_read1.fq", "w")
     # open("output/unknown_read2.fq", "w")
-
-    sequences = {"R1": [], "R2": [], "R3": [], "R4": []}
-
-    for line in R1:
-        sequences[R1].append(R1file.readline().strip())
-        for file in sequences.keys():
-            print(file)
-        #     for sequence in range(4):
-        #         sequences[file].append(file.readline().strip())
-        Read1 = sequences[R1]
-        Index1 = sequences(R2)
-        Read2 = sequences(R4)
-        Index2 = sequences(R3)
-        print(Index1[1])
-        print(Index2[1])
+    for line in R1file:
+        Read1 = []
+        Index1 = []
+        Index2 = []
+        Read2 = []
+        for i in range(4):
+            Read1.append(line.strip())
+            line = R1file.readline()
+        for i in range(4):
+            line = R2file.readline()
+            Index1.append(line.strip())
+        for i in range(4):
+            line = R3file.readline()
+            Index2.append(line.strip())
+        for i in range(4):
+            line = R4file.readline()
+            Read2.append(line.strip())
 
         # Discard reads if they are below a quality score cutoff
         if((mean_read_quality(Read1[3])) > 25
