@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import statistics
+import os
 
-# TODO Add argparse functionality
-# Include minimum quality score cutoff as optional parameters
+# TODO Add argparse functionality (Include minimum quality score cutoff as optional parameters)
 
 # Dictionary of Index Sequences
 index_sequences = {
@@ -73,35 +73,54 @@ def mean_read_quality(qscore_line):
     return statistics.mean(converted_list)
 
 
-with open("test_files/R1.fq", "r") as R1, \
-        open("test_files/R2.fq", "r") as R2, \
-        open("test_files/R3.fq", "r") as R3, \
-        open("test_files/R4.fq", "r") as R4:
-    # TODO Fix this to make it read the whole file without going over
-    # TODO Open 50 files for writing
-    Read1 = read_sequence(R1)
-    Index1 = read_sequence(R2)
-    Read2 = read_sequence(R4)
-    Index2 = read_sequence(R3)
-    print(Index1[1])
-    print(Index2[1])
+# os.makedirs("output")
 
-    # Discard reads if they are below a quality score cutoff
-    if((mean_read_quality(Read1[3])) > 25 and (mean_read_quality(Read2[3]) > 25) and (mean_read_quality(Index1[3]) > 30) and (mean_read_quality(Index2[3]) > 30)):
-        quality_reads += 2
-        # Check if the indexes of the reads are accurate
-        if(Index1[1] in index_sequences.keys() and Index2[1] in index_sequences.keys()):
-            good_indexes += 2
-            # Check for index-hopping
-            if(Index1[1] == Index2[1]):
-                index_name = index_sequences[Index1[1]]
-                properly_matched[index_name] += 2
-                # Write to the appropriate index-read file
+with open("test_files/R1.fq", "r") as R1file, \
+        open("test_files/R2.fq", "r") as R2file, \
+        open("test_files/R3.fq", "r") as R3file, \
+        open("test_files/R4.fq", "r") as R4file:
+    # for index in index_sequences.values():
+    #     open("output/" + index + "_read1.fq", "w")
+    #     open("output/" + index + "_read2.fq", "w")
+    # open("output/unknown_read1.fq", "w")
+    # open("output/unknown_read2.fq", "w")
+
+    sequences = {"R1": [], "R2": [], "R3": [], "R4": []}
+
+    for line in R1:
+        sequences[R1].append(R1file.readline().strip())
+        for file in sequences.keys():
+            print(file)
+        #     for sequence in range(4):
+        #         sequences[file].append(file.readline().strip())
+        Read1 = sequences[R1]
+        Index1 = sequences(R2)
+        Read2 = sequences(R4)
+        Index2 = sequences(R3)
+        print(Index1[1])
+        print(Index2[1])
+
+        # Discard reads if they are below a quality score cutoff
+        if((mean_read_quality(Read1[3])) > 25
+           and (mean_read_quality(Read2[3]) > 25)
+           and (mean_read_quality(Index1[3]) > 30)
+           and (mean_read_quality(Index2[3]) > 30)):
+            quality_reads += 2
+            # Check if the indexes of the reads are accurate
+            if(Index1[1] in index_sequences.keys()
+                    and Index2[1] in index_sequences.keys()):
+                good_indexes += 2
+                # Check for index-hopping
+                if(Index1[1] == Index2[1]):
+                    index_name = index_sequences[Index1[1]]
+                    properly_matched[index_name] += 2
+                    # Write to the appropriate index-read file
+                else:
+                    # Write to unknown index sequence files
+                    pass
             else:
                 # Write to unknown index sequence files
                 pass
-        else:
-            # Write to unknown index sequence files
-            pass
 
 # Results output:
+# TODO Format Results
