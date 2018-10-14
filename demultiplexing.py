@@ -2,8 +2,20 @@
 
 import statistics
 import os
+import argparse
 
 # TODO Add argparse functionality (Include minimum quality score cutoff as optional parameters)
+
+
+# def get_arguments():
+#     parser = argparse.ArgumentParser(description="Demultiplexer")
+#     parser.add_argument("-c", "--coverage_limit",
+#                         help="k-mer coverage limit", required=True, type=int)
+#     parser.add_argument("-f", "--file", help="Input file (FASTQ Format)", required=True, type=str)
+#     return parser.parse_args()
+#
+#
+# args = get_arguments()
 
 # Dictionary of Index Sequences
 index_sequences = {
@@ -62,6 +74,15 @@ def mean_read_quality(qscore_line):
     return statistics.mean(converted_list)
 
 
+def reverse_complement(sequence):
+    base_pairing = {"A": "T", "T": "A", "G": "C", "C": "G"}
+    reversed_sequence = sequence[::-1]
+    reverse_complement = ""
+    for base in reversed_sequence:
+        reverse_complement += base_pairing[base]
+    return reverse_complement
+
+
 os.makedirs("output")
 
 with open("test_files/miniR1.fq", "r") as R1file, \
@@ -97,18 +118,18 @@ with open("test_files/miniR1.fq", "r") as R1file, \
             quality_reads += 2
             # Check if the indexes of the reads are accurate
             if(Index1[1] in index_sequences.keys()
-                    and Index2[1] in index_sequences.keys()):
+                    and reverse_complement(Index2[1]) in index_sequences.keys()):
                 good_indexes += 2
                 # Check for index-hopping
-                if(Index1[1] == Index2[1]):
+                if(Index1[1] == reverse_complement(Index2[1])):
                     index_name = index_sequences[Index1[1]]
                     properly_matched[index_name] += 2
                     print("Match")
-                    with open("output/{}_R1".format(index_name)) as f:
+                    with open("output/{}_R1".format(index_name), "w") as f:
                         for i in range(4):
                             f.write(Read1[i])
                             f.write('\n')
-                    with open("output/{}_R2".format(index_name)) as f:
+                    with open("output/{}_R2".format(index_name), "w") as f:
                         for i in range(4):
                             f.write(Read2[i])
                             f.write('\n')
@@ -125,9 +146,6 @@ with open("test_files/miniR1.fq", "r") as R1file, \
                     unk_r1.write('\n')
                     unk_r2.write(Read2[i])
                     unk_r2.write('\n')
-                print("Bad Index")
-        else:
-            print("Low-Quality")
 
 unk_r1.close()
 unk_r2.close()
