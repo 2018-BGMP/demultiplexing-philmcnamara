@@ -4,19 +4,31 @@ import statistics
 import os
 import argparse
 
-# TODO Add argparse functionality (Include minimum quality score cutoff as optional parameters)
+
+def get_arguments():
+    parser = argparse.ArgumentParser(description="Demultiplexer")
+    parser.add_argument("-i", "--index_cutoff",
+                        help="minimum average quality score for an index \
+                        (default 30)",
+                        required=False, type=int, nargs="?", default=30)
+    parser.add_argument("-r", "--read_cutoff",
+                        help="minimum average quality score for a read \
+                        (default 25)",
+                        required=False, type=int, nargs="?", default=25)
+    parser.add_argument("-f", "--files", help="Input the multiplexed FASTQ \
+                        files in this order: Forward Read  Forward Index \
+                        Reverse Read  Reverse Index",
+                        required=True, type=str, nargs=4)
+    return parser.parse_args()
 
 
-# def get_arguments():
-#     parser = argparse.ArgumentParser(description="Demultiplexer")
-#     parser.add_argument("-c", "--coverage_limit",
-#                         help="k-mer coverage limit", required=True, type=int)
-#     parser.add_argument("-f", "--file", help="Input file (FASTQ Format)", required=True, type=str)
-#     return parser.parse_args()
-#
-#
-# args = get_arguments()
+args = get_arguments()
 
+files = args.files
+index_qscore_cutoff = args.index_cutoff
+read_qscore_cutoff = args.read_cutoff
+
+# GLOBAL VARIABLES/DATA STRUCTURES
 # Dictionary of Index Sequences
 index_sequences = {
     "GTAGCGTA": "B1",
@@ -46,7 +58,7 @@ index_sequences = {
 }
 
 # Base-pairing for finding reverse complement
-base_pairing = {"A": "T", "T": "A", "G": "C", "C": "G"}
+base_pairing = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
 
 # Properly Matched Tracker Dictionary
 properly_matched = dict()
@@ -56,11 +68,15 @@ for value in index_sequences.values():
 # Number of reads that pass quality score cutoff
 quality_reads = 0
 # Number of reads that pass quality score AND have correct indexes
-good_indexes = 0
-# Reads that pass above AND aren't index-hopped will be written to output and
+# Reads that pass below AND aren't index-hopped will be written to output and
 # counted in the "properly-matched" dictionary
+good_indexes = 0
 
+# Total number of sequences processed
 total_sequence_count = 0
+
+
+# FUNCTIONS
 
 
 def convert_phred(char):
@@ -88,33 +104,42 @@ def reverse_complement(sequence):
         reverse_complement += base_pairing[base]
     return reverse_complement
 
+# FILE PROCESSING BODY
+
 
 os.makedirs("output")
 
-with open("test_files/miniR1.fq", "r") as R1file, \
-        open("test_files/miniR2.fq", "r") as R2file, \
-        open("test_files/miniR3.fq", "r") as R3file, \
-        open("test_files/miniR4.fq", "r") as R4file:
+print("Starting demultiplexing with minimum average read quality score of "
+      + str(read_qscore_cutoff) +
+      " and minimum average index quality score of "
+      + str(index_qscore_cutoff))
+
+with open(files[0], "r") as Read1_file, \
+        open(files[1], "r") as Index1_file, \
+        open(files[2], "r") as Read2_file, \
+        open(files[3], "r") as Index2_file:
     unk_r1 = open("output/unknown_read1.fq", "w")
     unk_r2 = open("output/unknown_read2.fq", "w")
-    for line in R1file:
+    for line in Read1_file:
+        if(total_sequence_count % 100000 == 0):
+            print("Now processing sequence: " + str(total_sequence_count))
         Read1 = []
         Index1 = []
-        Index2 = []
         Read2 = []
+        Index2 = []
         Read1.append(line.strip())
         for i in range(3):
-            line = R1file.readline()
+            line = Read1_file.readline()
             Read1.append(line.strip())
         for i in range(4):
-            line = R2file.readline()
+            line = Index1_file.readline()
             Index1.append(line.strip())
         for i in range(4):
-            line = R3file.readline()
-            Index2.append(line.strip())
-        for i in range(4):
-            line = R4file.readline()
+            line = Read2_file.readline()
             Read2.append(line.strip())
+        for i in range(4):
+            line = Index2_file.readline()
+            Index2.append(line.strip())
         total_sequence_count += 2
         # Discard reads if they are below a quality score cutoff
         if((mean_read_quality(Read1[3])) > 25
@@ -158,20 +183,18 @@ with open("test_files/miniR1.fq", "r") as R1file, \
 unk_r1.close()
 unk_r2.close()
 
-# Results output:
-# TODO Format Results
-
+# RESULTS REPORTING
 matched_reads = 0
 for key, value in properly_matched.items():
     matched_reads += value
 with open("results.txt", "w") as o:
-    o.write("Total Reads Processed: " + str(total_sequence_count))
+    o.write("Total Reads Processed: " + str(total_sequence_count) + "\n")
     o.write("Reads discarded due to low quality: "
-            + str(total_sequence_count - quality_reads))
+            + str(total_sequence_count - quality_reads) + "\n")
     o.write("Reads with unknown indexes: " + str(quality_reads - good_indexes))
     for key, value in properly_matched.items():
-        o.write(key + ": " + str(value / matched_reads) + "%")
+        o.write(key + ": " + str(value / matched_reads) + "%\n")
     o.write("Index hopping is only assessed for reads above the quality score \
-            filter and with two correct indexes")
+            filter and with two correct indexes\n")
     o.write("Percentage Index Hopping: " +
             str(matched_reads / good_indexes) + "%")
