@@ -46,17 +46,6 @@ good_indexes = 0
 # counted in the "properly-matched" dictionary
 
 
-def read_sequence(file):
-    '''Takes a FASTQ input file and reads four lines, stripping newline characters
-    and saving them to strings prefixed by their file name:
-    file_header, file_sequence, file_plus, file_quality'''
-    lines = []
-    # Read in the first 4 lines, 1 sequence
-    for i in range(4):
-        lines.append(file.readline().strip())
-    return lines
-
-
 def convert_phred(char):
     '''Converts an ASCII phred score to a numeric quality score value'''
     return ord(char) - 33
@@ -75,10 +64,10 @@ def mean_read_quality(qscore_line):
 
 # os.makedirs("output")
 
-with open("test_files/R1.fq", "r") as R1file, \
-        open("test_files/R2.fq", "r") as R2file, \
-        open("test_files/R3.fq", "r") as R3file, \
-        open("test_files/R4.fq", "r") as R4file:
+with open("test_files/miniR1.fq", "r") as R1file, \
+        open("test_files/miniR2.fq", "r") as R2file, \
+        open("test_files/miniR3.fq", "r") as R3file, \
+        open("test_files/miniR4.fq", "r") as R4file:
     # for index in index_sequences.values():
     #     open("output/" + index + "_read1.fq", "w")
     #     open("output/" + index + "_read2.fq", "w")
@@ -89,9 +78,10 @@ with open("test_files/R1.fq", "r") as R1file, \
         Index1 = []
         Index2 = []
         Read2 = []
-        for i in range(4):
-            Read1.append(line.strip())
+        Read1.append(line.strip())
+        for i in range(3):
             line = R1file.readline()
+            Read1.append(line.strip())
         for i in range(4):
             line = R2file.readline()
             Index1.append(line.strip())
@@ -116,13 +106,18 @@ with open("test_files/R1.fq", "r") as R1file, \
                 if(Index1[1] == Index2[1]):
                     index_name = index_sequences[Index1[1]]
                     properly_matched[index_name] += 2
+                    print("Match")
                     # Write to the appropriate index-read file
                 else:
-                    # Write to unknown index sequence files
                     pass
+                    # Write to unknown index sequence files
+                    print("Index-Hop")
             else:
-                # Write to unknown index sequence files
                 pass
-
-# Results output:
-# TODO Format Results
+                # Write to unknown index sequence files
+                print("Bad Index")
+        else:
+            pass
+            print("Low-Quality")
+            # Results output:
+            # TODO Format Results
