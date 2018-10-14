@@ -62,17 +62,14 @@ def mean_read_quality(qscore_line):
     return statistics.mean(converted_list)
 
 
-# os.makedirs("output")
+os.makedirs("output")
 
 with open("test_files/miniR1.fq", "r") as R1file, \
         open("test_files/miniR2.fq", "r") as R2file, \
         open("test_files/miniR3.fq", "r") as R3file, \
         open("test_files/miniR4.fq", "r") as R4file:
-    # for index in index_sequences.values():
-    #     open("output/" + index + "_read1.fq", "w")
-    #     open("output/" + index + "_read2.fq", "w")
-    # open("output/unknown_read1.fq", "w")
-    # open("output/unknown_read2.fq", "w")
+    unk_r1 = open("output/unknown_read1.fq", "w")
+    unk_r2 = open("output/unknown_read2.fq", "w")
     for line in R1file:
         Read1 = []
         Index1 = []
@@ -107,17 +104,39 @@ with open("test_files/miniR1.fq", "r") as R1file, \
                     index_name = index_sequences[Index1[1]]
                     properly_matched[index_name] += 2
                     print("Match")
-                    # Write to the appropriate index-read file
+                    with open("output/{}_R1".format(index_name)) as f:
+                        for i in range(4):
+                            f.write(Read1[i])
+                            f.write('\n')
+                    with open("output/{}_R2".format(index_name)) as f:
+                        for i in range(4):
+                            f.write(Read2[i])
+                            f.write('\n')
                 else:
-                    pass
-                    # Write to unknown index sequence files
+                    for i in range(4):
+                        unk_r1.write(Read1[i])
+                        unk_r1.write('\n')
+                        unk_r2.write(Read2[i])
+                        unk_r2.write('\n')
                     print("Index-Hop")
             else:
-                pass
-                # Write to unknown index sequence files
+                for i in range(4):
+                    unk_r1.write(Read1[i])
+                    unk_r1.write('\n')
+                    unk_r2.write(Read2[i])
+                    unk_r2.write('\n')
                 print("Bad Index")
         else:
-            pass
             print("Low-Quality")
-            # Results output:
-            # TODO Format Results
+
+unk_r1.close()
+unk_r2.close()
+
+# Results output:
+# TODO Format Results
+
+matched_reads = 0
+for key, value in properly_matched.items():
+    matched_reads += value
+
+print("Percentage Index Hopping: " + str(matched_reads / quality_reads) + "%")
