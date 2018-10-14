@@ -45,6 +45,9 @@ index_sequences = {
     "AGGATAGC": "A8"
 }
 
+# Base-pairing for finding reverse complement
+base_pairing = {"A": "T", "T": "A", "G": "C", "C": "G"}
+
 # Properly Matched Tracker Dictionary
 properly_matched = dict()
 for value in index_sequences.values():
@@ -56,6 +59,8 @@ quality_reads = 0
 good_indexes = 0
 # Reads that pass above AND aren't index-hopped will be written to output and
 # counted in the "properly-matched" dictionary
+
+total_sequence_count = 0
 
 
 def convert_phred(char):
@@ -75,7 +80,8 @@ def mean_read_quality(qscore_line):
 
 
 def reverse_complement(sequence):
-    base_pairing = {"A": "T", "T": "A", "G": "C", "C": "G"}
+    '''Takes a DNA sequence string and returns the
+    reverse complementary sequence'''
     reversed_sequence = sequence[::-1]
     reverse_complement = ""
     for base in reversed_sequence:
@@ -109,19 +115,21 @@ with open("test_files/miniR1.fq", "r") as R1file, \
         for i in range(4):
             line = R4file.readline()
             Read2.append(line.strip())
-
+        total_sequence_count += 2
         # Discard reads if they are below a quality score cutoff
         if((mean_read_quality(Read1[3])) > 25
            and (mean_read_quality(Read2[3]) > 25)
            and (mean_read_quality(Index1[3]) > 30)
            and (mean_read_quality(Index2[3]) > 30)):
             quality_reads += 2
+            # Use the reverse complement of Index 2 for comparison
+            Index2_RC = reverse_complement(Index2[1])
             # Check if the indexes of the reads are accurate
             if(Index1[1] in index_sequences.keys()
-                    and reverse_complement(Index2[1]) in index_sequences.keys()):
+                    and Index2_RC in index_sequences.keys()):
                 good_indexes += 2
                 # Check for index-hopping
-                if(Index1[1] == reverse_complement(Index2[1])):
+                if(Index1[1] == Index2_RC):
                     index_name = index_sequences[Index1[1]]
                     properly_matched[index_name] += 2
                     print("Match")
@@ -156,5 +164,14 @@ unk_r2.close()
 matched_reads = 0
 for key, value in properly_matched.items():
     matched_reads += value
-
-print("Percentage Index Hopping: " + str(matched_reads / quality_reads) + "%")
+with open("results.txt", "w") as o:
+    o.write("Total Reads Processed: " + str(total_sequence_count))
+    o.write("Reads discarded due to low quality: "
+            + str(total_sequence_count - quality_reads))
+    o.write("Reads with unknown indexes: " + str(quality_reads - good_indexes))
+    for key, value in properly_matched.items():
+        o.write(key + ": " + str(value / matched_reads) + "%")
+    o.write("Index hopping is only assessed for reads above the quality score \
+            filter and with two correct indexes")
+    o.write("Percentage Index Hopping: " +
+            str(matched_reads / good_indexes) + "%")
