@@ -1,4 +1,4 @@
-#!/packages/python/3.6.5/bin/python3
+#! /usr/bin/env python3
 
 import os
 import argparse
@@ -196,10 +196,10 @@ print("Starting demultiplexing with minimum average read quality score of "
       " and minimum average index quality score of "
       + str(index_qscore_cutoff))
 
-with gzip.open(files[0], "rb") as Read1_file, \
-        gzip.open(files[1], "rb") as Index1_file, \
-        gzip.open(files[2], "rb") as Read2_file, \
-        gzip.open(files[3], "rb") as Index2_file:
+with gzip.open(files[0], "rt") as Read1_file, \
+        gzip.open(files[1], "rt") as Index1_file, \
+        gzip.open(files[2], "rt") as Read2_file, \
+        gzip.open(files[3], "rt") as Index2_file:
     for line in Read1_file:
         if(total_sequence_count % 10000000 == 0):
             print("Now processing sequence: " + str(total_sequence_count))
@@ -207,19 +207,19 @@ with gzip.open(files[0], "rb") as Read1_file, \
         Index1 = []
         Read2 = []
         Index2 = []
-        Read1.append(line.decode("UTF-8").strip())
+        Read1.append(line.strip())
         for i in range(3):
             line = Read1_file.readline()
-            Read1.append(line.decode("UTF-8").strip())
+            Read1.append(line.strip())
         for i in range(4):
             line = Index1_file.readline()
-            Index1.append(line.decode("UTF-8").strip())
+            Index1.append(line.strip())
         for i in range(4):
             line = Read2_file.readline()
-            Read2.append(line.decode("UTF-8").strip())
+            Read2.append(line.strip())
         for i in range(4):
             line = Index2_file.readline()
-            Index2.append(line.decode("UTF-8").strip())
+            Index2.append(line.strip())
         total_sequence_count += 2
         # Discard reads if they are below a quality score cutoff
         if((mean_read_quality(Read1[3])) > read_qscore_cutoff
@@ -239,9 +239,14 @@ with gzip.open(files[0], "rb") as Read1_file, \
                     properly_matched[index_name] += 2
                     for i in range(4):
                         out_files[index_name][0].write(Read1[i])
+                        # Write the index sequence in the header
+                        if(i == 0):
+                            out_files[index_name][0].write(":" + Index1[1])
                         out_files[index_name][0].write('\n')
                     for i in range(4):
                         out_files[index_name][1].write(Read2[i])
+                        if(i == 0):
+                            out_files[index_name][0].write(":" + Index1[1])
                         out_files[index_name][1].write('\n')
                 else:
                     for i in range(4):
@@ -263,7 +268,7 @@ unk_r2.close()
 matched_reads = 0
 for key, value in properly_matched.items():
     matched_reads += value
-with open("results.txt", "w") as o:
+with open("results_testing.txt", "w") as o:
     o.write("Total Reads Processed: " + str(total_sequence_count) + "\n\n")
     low_qual = total_sequence_count - quality_reads
     percent_low_qual = round((low_qual/total_sequence_count) * 100, 2)
@@ -279,7 +284,7 @@ with open("results.txt", "w") as o:
         o.write(key + ": " + str(value) + " sequences  "
                 + str(percent_by_index) + "%\n")
     o.write("\n")
-    o.write("Index hopping is only assessed for reads above the quality score"
+    o.write("Index hopping is only assessed for reads above the quality score "
             "filter and with two correct indexes\n")
     hopping = round((1 - (matched_reads/good_indexes)) * 100, 4)
     o.write("Percentage Index Hopping: " + str(hopping) + "%\n")
