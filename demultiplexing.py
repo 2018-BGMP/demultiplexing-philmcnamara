@@ -5,6 +5,8 @@ import argparse
 import statistics
 import gzip
 
+# ARGPARSE
+
 
 def get_arguments():
     parser = argparse.ArgumentParser(description="Demultiplexer")
@@ -32,10 +34,6 @@ read_qscore_cutoff = args.read_cutoff
 os.makedirs("demultiplexed")
 
 # GLOBAL VARIABLES/DATA STRUCTURES
-
-# I know this is not ideal but I couldn't figure out how
-# to open and name files in a loop
-
 
 # Dictionary of Index Sequences
 
@@ -66,8 +64,11 @@ index_sequences = {
     "AGGATAGC": "A8"
 }
 
+# Dictionary to hold output file names as keys, file handles as values
 out_files = {}
 
+# For each index name, open a R1 and R2 file.
+# This avoids opening/closing the files for each read/write operation
 for value in index_sequences.values():
     out_files[value + "_R1"] = open("demultiplexed/" + value + "_R1.fq", "w")
     out_files[value + "_R2"] = open("demultiplexed/" + value + "_R2.fq", "w")
@@ -75,10 +76,11 @@ for value in index_sequences.values():
 unk_r1 = open("demultiplexed/unknown_read1.fq", "w")
 unk_r2 = open("demultiplexed/unknown_read2.fq", "w")
 
-# Base-pairing for finding reverse complement
+# Base-pairing for finding reverse complement, N is unchanged
 base_pairing = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
 
-# Properly Matched Tracker Dictionary
+# Dictionary to hold number of reads for each index
+# that are high quality and not index hopped
 properly_matched = dict()
 for value in index_sequences.values():
     properly_matched[value] = 0
@@ -95,7 +97,6 @@ total_sequence_count = 0
 
 
 # FUNCTIONS
-
 
 def convert_phred(char):
     '''Converts an ASCII phred score to a numeric quality score value'''
@@ -134,6 +135,7 @@ with gzip.open(files[0], "rt") as Read1_file, \
         gzip.open(files[1], "rt") as Index1_file, \
         gzip.open(files[2], "rt") as Read2_file, \
         gzip.open(files[3], "rt") as Index2_file:
+    # Progress indicator
     for line in Read1_file:
         if(total_sequence_count % 10000000 == 0):
             print("Now processing sequence: " + str(total_sequence_count))
@@ -154,6 +156,7 @@ with gzip.open(files[0], "rt") as Read1_file, \
         for i in range(4):
             line = Index2_file.readline()
             Index2.append(line.strip())
+        # Increment by 2 for forward and reverse, same for other counters below
         total_sequence_count += 2
         # Discard reads if they are below a quality score cutoff
         if((mean_read_quality(Read1[3])) > read_qscore_cutoff
@@ -171,9 +174,10 @@ with gzip.open(files[0], "rt") as Read1_file, \
                 if(Index1[1] == Index2_RC):
                     index_name = index_sequences[Index1[1]]
                     properly_matched[index_name] += 2
+                    # Write each line of the read to output file
                     for i in range(4):
                         out_files[index_name + "_R1"].write(Read1[i])
-                        # Write the index sequence in the header
+                        # Write the index sequence in the @ header
                         if(i == 0):
                             out_files[index_name + "_R1"].write(":" + Index1[1])
                         out_files[index_name + "_R1"].write('\n')
@@ -182,20 +186,19 @@ with gzip.open(files[0], "rt") as Read1_file, \
                         if(i == 0):
                             out_files[index_name + "_R2"].write(":" + Index1[1])
                         out_files[index_name + "_R2"].write('\n')
+                # Index-hopping alternative
                 else:
+
                     for i in range(4):
-                        unk_r1.write(Read1[i])
-                        unk_r1.write('\n')
-                        unk_r2.write(Read2[i])
-                        unk_r2.write('\n')
+                        unk_r1.write(Read1[i] + "\n")
+                        unk_r2.write(Read2[i] + "\n")
+            # Bad index alternative
             else:
                 for i in range(4):
-                    unk_r1.write(Read1[i])
-                    unk_r1.write('\n')
-                    unk_r2.write(Read2[i])
-                    unk_r2.write('\n')
+                    unk_r1.write(Read1[i] + "\n")
+                    unk_r2.write(Read2[i] + "\n")
 
-# Close all not automatically closed by "with"
+# Close all files not automatically closed by "with"
 
 unk_r1.close()
 unk_r2.close()
@@ -204,10 +207,12 @@ for value in out_files.values():
     value.close()
 
 # RESULTS REPORTING
+
+# Sum the total number of reads with no index hopping
 matched_reads = 0
 for key, value in properly_matched.items():
     matched_reads += value
-with open("results_testing.txt", "w") as o:
+with open("results.txt", "w") as o:
     o.write("Total Reads Processed: " + str(total_sequence_count) + "\n\n")
     low_qual = total_sequence_count - quality_reads
     percent_low_qual = round((low_qual/total_sequence_count) * 100, 2)

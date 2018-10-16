@@ -30,5 +30,5 @@ A7: 6687286 sequences  1.12%
 B10: 20461112 sequences  3.44%
 A8: 15804562 sequences  2.65%
 
-Index hopping is only assessed for reads above the quality scorefilter and with two correct indexes
+Index hopping is only assessed for reads above the quality score filter and with two correct indexes
 Percentage Index Hopping: 0.1696%
