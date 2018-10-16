@@ -35,58 +35,10 @@ os.makedirs("demultiplexed")
 
 # I know this is not ideal but I couldn't figure out how
 # to open and name files in a loop
-B1_R1 = open("demultiplexed/B1_R1.fq", "w")
-B1_R2 = open("demultiplexed/B1_R2.fq", "w")
-A5_R1 = open("demultiplexed/A5_R1.fq", "w")
-A5_R2 = open("demultiplexed/A5_R2.fq", "w")
-C1_R1 = open("demultiplexed/C1_R1.fq", "w")
-C1_R2 = open("demultiplexed/C1_R2.fq", "w")
-B9_R1 = open("demultiplexed/B9_R1.fq", "w")
-B9_R2 = open("demultiplexed/B9_R2.fq", "w")
-C9_R1 = open("demultiplexed/C9_R1.fq", "w")
-C9_R2 = open("demultiplexed/C9_R2.fq", "w")
-C3_R1 = open("demultiplexed/C3_R1.fq", "w")
-C3_R2 = open("demultiplexed/C3_R2.fq", "w")
-B3_R1 = open("demultiplexed/B3_R1.fq", "w")
-B3_R2 = open("demultiplexed/B3_R2.fq", "w")
-C4_R1 = open("demultiplexed/C4_R1.fq", "w")
-C4_R2 = open("demultiplexed/C4_R2.fq", "w")
-A11_R1 = open("demultiplexed/A11_R1.fq", "w")
-A11_R2 = open("demultiplexed/A11_R2.fq", "w")
-C7_R1 = open("demultiplexed/C7_R1.fq", "w")
-C7_R2 = open("demultiplexed/C7_R2.fq", "w")
-B2_R1 = open("demultiplexed/B2_R1.fq", "w")
-B2_R2 = open("demultiplexed/B2_R2.fq", "w")
-A1_R1 = open("demultiplexed/A1_R1.fq", "w")
-A1_R2 = open("demultiplexed/A1_R2.fq", "w")
-B7_R1 = open("demultiplexed/B7_R1.fq", "w")
-B7_R2 = open("demultiplexed/B7_R2.fq", "w")
-A3_R1 = open("demultiplexed/A3_R1.fq", "w")
-A3_R2 = open("demultiplexed/A3_R2.fq", "w")
-B4_R1 = open("demultiplexed/B4_R1.fq", "w")
-B4_R2 = open("demultiplexed/B4_R2.fq", "w")
-A12_R1 = open("demultiplexed/A12_R1.fq", "w")
-A12_R2 = open("demultiplexed/A12_R2.fq", "w")
-C10_R1 = open("demultiplexed/C10_R1.fq", "w")
-C10_R2 = open("demultiplexed/C10_R2.fq", "w")
-A2_R1 = open("demultiplexed/A2_R1.fq", "w")
-A2_R2 = open("demultiplexed/A2_R2.fq", "w")
-C2_R1 = open("demultiplexed/C2_R1.fq", "w")
-C2_R2 = open("demultiplexed/C2_R2.fq", "w")
-A10_R1 = open("demultiplexed/A10_R1.fq", "w")
-A10_R2 = open("demultiplexed/A10_R2.fq", "w")
-B8_R1 = open("demultiplexed/B8_R1.fq", "w")
-B8_R2 = open("demultiplexed/B8_R2.fq", "w")
-A7_R1 = open("demultiplexed/A7_R1.fq", "w")
-A7_R2 = open("demultiplexed/A7_R2.fq", "w")
-B10_R1 = open("demultiplexed/B10_R1.fq", "w")
-B10_R2 = open("demultiplexed/B10_R2.fq", "w")
-A8_R1 = open("demultiplexed/A8_R1.fq", "w")
-A8_R2 = open("demultiplexed/A8_R2.fq", "w")
-unk_r1 = open("demultiplexed/unknown_read1.fq", "w")
-unk_r2 = open("demultiplexed/unknown_read2.fq", "w")
+
 
 # Dictionary of Index Sequences
+
 index_sequences = {
     "GTAGCGTA": "B1",
     "CGATCGAT": "A5",
@@ -114,32 +66,14 @@ index_sequences = {
     "AGGATAGC": "A8"
 }
 
-out_files = {
-    "B1": [B1_R1, B1_R2],
-    "A5": [A5_R1, A5_R2],
-    "C1": [C1_R1, C1_R2],
-    "B9": [B9_R1, B9_R2],
-    "C9": [C9_R1, C9_R2],
-    "C3": [C3_R1, C3_R2],
-    "B3": [B3_R1, B3_R2],
-    "C4": [C4_R1, C4_R2],
-    "A11": [A11_R1, A11_R2],
-    "C7": [C7_R1, C7_R2],
-    "B2": [B2_R1, B2_R2],
-    "A1": [A1_R1, A1_R2],
-    "B7": [B7_R1, B7_R2],
-    "A3": [A3_R1, A3_R2],
-    "B4": [B4_R1, B4_R2],
-    "A12": [A12_R1, A12_R2],
-    "C10": [C10_R1, C10_R2],
-    "A2": [A2_R1, A2_R2],
-    "C2": [C2_R1, C2_R2],
-    "A10": [A10_R1, A10_R2],
-    "B8": [B8_R1, B8_R2],
-    "A7": [A7_R1, A7_R2],
-    "B10": [B10_R1, B10_R2],
-    "A8": [A8_R1, A8_R2]
-}
+out_files = {}
+
+for value in index_sequences.values():
+    out_files[value + "_R1"] = open("demultiplexed/" + value + "_R1.fq", "w")
+    out_files[value + "_R2"] = open("demultiplexed/" + value + "_R2.fq", "w")
+
+unk_r1 = open("demultiplexed/unknown_read1.fq", "w")
+unk_r2 = open("demultiplexed/unknown_read2.fq", "w")
 
 # Base-pairing for finding reverse complement
 base_pairing = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
@@ -238,16 +172,16 @@ with gzip.open(files[0], "rt") as Read1_file, \
                     index_name = index_sequences[Index1[1]]
                     properly_matched[index_name] += 2
                     for i in range(4):
-                        out_files[index_name][0].write(Read1[i])
+                        out_files[index_name + "_R1"].write(Read1[i])
                         # Write the index sequence in the header
                         if(i == 0):
-                            out_files[index_name][0].write(":" + Index1[1])
-                        out_files[index_name][0].write('\n')
+                            out_files[index_name + "_R1"].write(":" + Index1[1])
+                        out_files[index_name + "_R1"].write('\n')
                     for i in range(4):
-                        out_files[index_name][1].write(Read2[i])
+                        out_files[index_name + "_R2"].write(Read2[i])
                         if(i == 0):
-                            out_files[index_name][0].write(":" + Index1[1])
-                        out_files[index_name][1].write('\n')
+                            out_files[index_name + "_R2"].write(":" + Index1[1])
+                        out_files[index_name + "_R2"].write('\n')
                 else:
                     for i in range(4):
                         unk_r1.write(Read1[i])
@@ -261,8 +195,13 @@ with gzip.open(files[0], "rt") as Read1_file, \
                     unk_r2.write(Read2[i])
                     unk_r2.write('\n')
 
+# Close all not automatically closed by "with"
+
 unk_r1.close()
 unk_r2.close()
+
+for value in out_files.values():
+    value.close()
 
 # RESULTS REPORTING
 matched_reads = 0
