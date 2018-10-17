@@ -2,7 +2,6 @@
 
 import os
 import argparse
-import statistics
 import gzip
 
 # ARGPARSE
@@ -98,20 +97,16 @@ total_sequence_count = 0
 
 # FUNCTIONS
 
-def convert_phred(char):
-    '''Converts an ASCII phred score to a numeric quality score value'''
-    return ord(char) - 33
 
-
-def mean_read_quality(qscore_line):
+def mean_index_quality(qscore_line):
     '''Coverts a string of quality score ASCII characters into a list,
     then calls convert_phred to create a second list of quality score integers.
     Calculates the mean value of the list and returns it.'''
-    converted_list = []
+    sum = 0
     for score in qscore_line:
-        score = convert_phred(score)
-        converted_list.append(score)
-    return statistics.mean(converted_list)
+        # Convert from Phred-33
+        sum += ord(score) - 33
+    return sum/8
 
 
 def reverse_complement(sequence):
@@ -159,16 +154,13 @@ with gzip.open(files[0], "rt") as Read1_file, \
         # Increment by 2 for forward and reverse, same for other counters below
         total_sequence_count += 2
         # Discard reads if they are below a quality score cutoff
-        if((mean_read_quality(Read1[3])) > read_qscore_cutoff
-           and (mean_read_quality(Read2[3]) > read_qscore_cutoff
-                and (mean_read_quality(Index1[3]) > index_qscore_cutoff)
-                and (mean_read_quality(Index2[3]) > index_qscore_cutoff))):
+        if((mean_index_quality(Index1[3]) > index_qscore_cutoff)
+                and (mean_index_quality(Index2[3]) > index_qscore_cutoff)):
             quality_reads += 2
             # Use the reverse complement of Index 2 for comparison
             Index2_RC = reverse_complement(Index2[1])
             # Check if the indexes of the reads are accurate
-            if(Index1[1] in index_sequences.keys()
-                    and Index2_RC in index_sequences.keys()):
+            if(Index1[1] in index_sequences and Index2_RC in index_sequences):
                 good_indexes += 2
                 # Check for index-hopping
                 if(Index1[1] == Index2_RC):
