@@ -1,0 +1,34 @@
+Total Reads Processed: 726493470
+
+Reads with low quality score indexes: 94624244 (13.02%)
+
+Reads with unknown indexes: 23552702 (3.73%)
+
+Demultiplexed read counts by index
+B1: 14846332 sequences  2.44%
+A5: 10423446 sequences  1.72%
+C1: 12140072 sequences  2.0%
+B9: 16308508 sequences  2.69%
+C9: 19624848 sequences  3.23%
+C3: 8930298 sequences  1.47%
+B3: 64099298 sequences  10.55%
+C4: 137708752 sequences  22.68%
+A11: 32238150 sequences  5.31%
+C7: 7624682 sequences  1.26%
+B2: 13142942 sequences  2.16%
+A1: 14841284 sequences  2.44%
+B7: 20317262 sequences  3.35%
+A3: 29469452 sequences  4.85%
+B4: 16262976 sequences  2.68%
+A12: 7064402 sequences  1.16%
+C10: 78021934 sequences  12.85%
+A2: 18458454 sequences  3.04%
+C2: 12672478 sequences  2.09%
+A10: 21214988 sequences  3.49%
+B8: 8280268 sequences  1.36%
+A7: 6832052 sequences  1.13%
+B10: 20676254 sequences  3.4%
+A8: 16091312 sequences  2.65%
+
+Index hopping is only assessed for reads above the quality score filter and with two correct indexes
+Percentage Index Hopping: 0.1687%
