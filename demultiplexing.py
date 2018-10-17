@@ -13,10 +13,6 @@ def get_arguments():
                         help="minimum average quality score for an index \
                         (default 30)",
                         required=False, type=int, nargs="?", default=30)
-    parser.add_argument("-r", "--read_cutoff",
-                        help="minimum average quality score for a read \
-                        (default 25)",
-                        required=False, type=int, nargs="?", default=25)
     parser.add_argument("-f", "--files", help="Input the multiplexed FASTQ \
                         files in this order: Forward Read  Forward Index \
                         Reverse Read  Reverse Index",
@@ -28,7 +24,6 @@ args = get_arguments()
 
 files = args.files
 index_qscore_cutoff = args.index_cutoff
-read_qscore_cutoff = args.read_cutoff
 
 os.makedirs("demultiplexed")
 
@@ -121,9 +116,7 @@ def reverse_complement(sequence):
 # FILE PROCESSING BODY
 
 
-print("Starting demultiplexing with minimum average read quality score of "
-      + str(read_qscore_cutoff) +
-      " and minimum average index quality score of "
+print("Starting demultiplexing with minimum average index quality score of "
       + str(index_qscore_cutoff))
 
 with gzip.open(files[0], "rt") as Read1_file, \
@@ -189,6 +182,11 @@ with gzip.open(files[0], "rt") as Read1_file, \
                 for i in range(4):
                     unk_r1.write(Read1[i] + "\n")
                     unk_r2.write(Read2[i] + "\n")
+        # Low index quality alternative
+        else:
+            for i in range(4):
+                unk_r1.write(Read1[i] + "\n")
+                unk_r2.write(Read2[i] + "\n")
 
 # Close all files not automatically closed by "with"
 
@@ -208,7 +206,7 @@ with open("results.txt", "w") as o:
     o.write("Total Reads Processed: " + str(total_sequence_count) + "\n\n")
     low_qual = total_sequence_count - quality_reads
     percent_low_qual = round((low_qual/total_sequence_count) * 100, 2)
-    o.write("Reads discarded due to low quality: "
+    o.write("Reads with low quality score indexes: "
             + str(low_qual) + " (" + str(percent_low_qual) + "%)\n\n")
     unknown = quality_reads - good_indexes
     percent_unknown = round((unknown/quality_reads) * 100, 2)

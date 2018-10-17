@@ -1,6 +1,6 @@
-Total Reads Processed: 20
+Total Reads Processed: 16
 
-Reads discarded due to low quality: 8 (40.0%)
+Reads with low quality score indexes: 4 (25.0%)
 
 Reads with unknown indexes: 10 (83.33%)
 
